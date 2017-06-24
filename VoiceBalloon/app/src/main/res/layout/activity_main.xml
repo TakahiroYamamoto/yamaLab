@@ -6,13 +6,18 @@
     android:layout_height="match_parent"
     tools:context="com.yamalab.voiceballoon.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <SurfaceView
+        android:id="@+id/preview"
+        android:layout_width="411dp"
+        android:layout_height="539dp"
+        tools:layout_editor_absoluteX="-4dp"
+        tools:layout_editor_absoluteY="-8dp" />
+
+    <SurfaceView
+        android:id="@+id/overlay"
+        android:layout_width="482dp"
+        android:layout_height="609dp"
+        tools:layout_editor_absoluteX="-48dp"
+        tools:layout_editor_absoluteY="-49dp" />
 
 </android.support.constraint.ConstraintLayout>
