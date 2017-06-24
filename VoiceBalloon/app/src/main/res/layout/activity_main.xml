@@ -17,7 +17,42 @@
         android:id="@+id/overlay"
         android:layout_width="482dp"
         android:layout_height="609dp"
-        tools:layout_editor_absoluteX="-48dp"
-        tools:layout_editor_absoluteY="-49dp" />
+        tools:layout_editor_absoluteX="-49dp"
+        tools:layout_editor_absoluteY="-8dp" />
+
+    <Button
+        android:id="@+id/start_recognize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteX="5dp"
+        tools:layout_editor_absoluteY="367dp" />
+
+    <EditText
+        android:id="@+id/status"
+        android:layout_width="285dp"
+        android:layout_height="46dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        tools:layout_editor_absoluteX="93dp"
+        tools:layout_editor_absoluteY="367dp" />
+
+    <EditText
+        android:id="@+id/sub_status"
+        android:layout_width="374dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        tools:layout_editor_absoluteX="5dp"
+        tools:layout_editor_absoluteY="415dp" />
+
+    <EditText
+        android:id="@+id/result"
+        android:layout_width="373dp"
+        android:layout_height="54dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        tools:layout_editor_absoluteX="5dp"
+        tools:layout_editor_absoluteY="452dp" />
 
 </android.support.constraint.ConstraintLayout>
