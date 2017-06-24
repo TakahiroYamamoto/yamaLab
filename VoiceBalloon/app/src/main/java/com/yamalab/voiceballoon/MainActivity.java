@@ -24,7 +24,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
+import android.os.AsyncTask;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
@@ -342,6 +359,22 @@ public class MainActivity extends Activity {
 
             ArrayList<String> results = data.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
+            //  翻訳の実装実験
+            String baseUrl = "https://www.googleapis.com/language/translate/v2?key=AIzaSyBa-gekC5Gu2uPuxOA7y32Gm8MSeftttXo";
+            String srcLang = "&source=ja";
+            String targetLang = "&target=en";
+            String transChar = "&q=" + results.get(0);
+
+            String postStr = baseUrl + srcLang + targetLang + transChar;
+
+
+            try {
+                new HttpPostTask().execute(new URL(postStr));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+
             TextView t = (TextView)caller.findViewById(R.id.result);
             t.setText("");
             for (String s : results) {
@@ -363,4 +396,56 @@ public class MainActivity extends Activity {
                 caller.startRecognizeSpeech();
         }
     }
+}
+
+// http://www.programing-style.com/android/android-api/android-httpurlconnection-post/
+class HttpPostTask extends AsyncTask<URL, Void, Void> {
+    @Override
+    protected Void doInBackground(URL... urls) {
+
+        final URL url = urls[0];
+        HttpURLConnection con = null;
+        try {
+            con = (HttpURLConnection) url.openConnection();
+            con.setDoOutput(true);
+            con.setChunkedStreamingMode(0);
+            con.connect();
+
+            // POSTデータ送信処理
+            OutputStream out = null;
+            try {
+                out = con.getOutputStream();
+                out.write("POST DATA".getBytes("UTF-8"));
+                out.flush();
+            } catch (IOException e) {
+                // POST送信エラー
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
+
+            final int status = con.getResponseCode();
+            if (status == HttpURLConnection.HTTP_OK) {
+                StringBuffer responseJSON = new StringBuffer();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null) {
+                    responseJSON.append(inputLine);
+                }
+
+                // この時点で、翻訳済みのJSONデータを取得済み!
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+        return null;
+    }
+
 }
