@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Random;
 
 import android.os.AsyncTask;
+import java.io.IOException;
+
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
@@ -135,9 +137,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class OverlayListener implements SurfaceHolder.Callback
+    public class OverlayListener implements SurfaceHolder.Callback
     {
-        private SurfaceView surfaceView;
+        public SurfaceView surfaceView;
         private SurfaceHolder surfaceHolder;
 
         private Paint paint = new Paint();
@@ -246,7 +248,7 @@ public class MainActivity extends Activity {
                     // 音声データ保存失敗
                     break;
                 case SpeechRecognizer.ERROR_CLIENT:
-                    // Android端末内のエラー(その他);
+                    // Android端末内のエラー(その他)
                     break;
                 case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                     // 権限無し
@@ -303,25 +305,28 @@ public class MainActivity extends Activity {
 
             String postStr = baseUrl + srcLang + targetLang + transChar;
 
+//            TextView t = (TextView)caller.findViewById(R.id.result);
 
             try {
-                new HttpPostTask().execute(new URL(postStr));
+                new HttpPostTask(overlayListener).execute(new URL(postStr));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+
 
 
             //　文字列の先頭（確度が高いやつ）を抜き出しで表示
             String ballonText = results.get(0);
             Log.v(TAG, "先頭文字列：" + ballonText);
 
-            // ある程度場所を散らす
-            Random r = new Random();
-            int top = r.nextInt(500) + 700;
-            int left = r.nextInt(500) + 100;
 
-
-            overlayListener.drawFace(left, top, Color.GREEN, ballonText);
+//            // ある程度場所を散らす
+//            Random r = new Random();
+//            int top = r.nextInt(500) + 700;
+//            int left = r.nextInt(500) + 100;
+//
+//
+//            overlayListener.drawFace(left, top, Color.GREEN, ballonText);
 
             boolean end = false;
             for (String s : results) {
@@ -332,6 +337,7 @@ public class MainActivity extends Activity {
                 if (s.equals("キャンセル"))
                     end = true;
             }
+
             if (!end) {
                 caller.startRecognizeSpeech();
             }
@@ -341,12 +347,19 @@ public class MainActivity extends Activity {
 
 
 // http://www.programing-style.com/android/android-api/android-httpurlconnection-post/
-class HttpPostTask extends AsyncTask<URL, Void, Void> {
+class HttpPostTask extends AsyncTask<URL, Void, String> {
+    private MainActivity.OverlayListener textView;
+
+    public HttpPostTask(MainActivity.OverlayListener textView) {
+        super();
+        this.textView = textView;
+    }
     @Override
-    protected Void doInBackground(URL... urls) {
+    protected String doInBackground(URL... urls) {
 
         final URL url = urls[0];
         HttpURLConnection con = null;
+        String translatedText = "";
         try {
             con = (HttpURLConnection) url.openConnection();
             con.setDoOutput(true);
@@ -376,6 +389,10 @@ class HttpPostTask extends AsyncTask<URL, Void, Void> {
                 while ((inputLine = reader.readLine()) != null) {
                     responseJSON.append(inputLine);
                 }
+                int headOfTranstaredText = responseJSON.lastIndexOf("translatedText");
+                String seekHeadString = responseJSON.substring(headOfTranstaredText+18);
+                int endOfTranstaredText = seekHeadString.indexOf("\"");
+                translatedText = seekHeadString.substring(0, endOfTranstaredText);
 
                 // この時点で、翻訳済みのJSONデータを取得済み!
             }
@@ -387,7 +404,19 @@ class HttpPostTask extends AsyncTask<URL, Void, Void> {
                 con.disconnect();
             }
         }
-        return null;
+        return translatedText;
+    }
+    @Override
+    protected void onPostExecute(String result)
+    {
+        // ある程度場所を散らす
+        Random r = new Random();
+        int top = r.nextInt(500) + 700;
+        int left = r.nextInt(500) + 100;
+
+        textView.drawFace(left, top, Color.GREEN, result);
+//        textView.drawFace(result);
+
     }
 
 }

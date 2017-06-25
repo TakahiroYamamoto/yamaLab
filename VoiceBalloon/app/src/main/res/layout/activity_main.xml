@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+
             <SurfaceView
                 android:id="@+id/overlay"
                 android:layout_width="match_parent"
@@ -28,6 +29,7 @@
                 android:layout_height="match_parent"
                 tools:layout_editor_absoluteX="-4dp"
                 tools:layout_editor_absoluteY="-8dp" />
+
 
         </FrameLayout>
 
