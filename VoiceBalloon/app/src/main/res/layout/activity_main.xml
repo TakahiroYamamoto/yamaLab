@@ -13,52 +13,23 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="369dp">
+            android:layout_height="match_parent">
 
             <SurfaceView
                 android:id="@+id/overlay"
-                android:layout_width="482dp"
-                android:layout_height="609dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 tools:layout_editor_absoluteX="-49dp"
                 tools:layout_editor_absoluteY="-8dp" />
 
             <SurfaceView
                 android:id="@+id/preview"
-                android:layout_width="411dp"
-                android:layout_height="539dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 tools:layout_editor_absoluteX="-4dp"
                 tools:layout_editor_absoluteY="-8dp" />
+
         </FrameLayout>
-
-        <EditText
-            android:id="@+id/status"
-            android:layout_width="285dp"
-            android:layout_height="46dp"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="textPersonName"
-            tools:layout_editor_absoluteX="93dp"
-            tools:layout_editor_absoluteY="367dp" />
-
-        <EditText
-            android:id="@+id/sub_status"
-            android:layout_width="374dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="textPersonName"
-            tools:layout_editor_absoluteX="5dp"
-            tools:layout_editor_absoluteY="415dp" />
-
-        <EditText
-            android:id="@+id/result"
-            android:layout_width="373dp"
-            android:layout_height="54dp"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="textPersonName"
-            tools:layout_editor_absoluteX="5dp"
-            tools:layout_editor_absoluteY="452dp" />
 
     </LinearLayout>
 
