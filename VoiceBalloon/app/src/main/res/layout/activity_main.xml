@@ -30,15 +30,6 @@
                 tools:layout_editor_absoluteY="-8dp" />
         </FrameLayout>
 
-        <Button
-            android:id="@+id/start_recognize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Button"
-            tools:layout_editor_absoluteX="5dp"
-            tools:layout_editor_absoluteY="367dp" />
-
         <EditText
             android:id="@+id/status"
             android:layout_width="285dp"

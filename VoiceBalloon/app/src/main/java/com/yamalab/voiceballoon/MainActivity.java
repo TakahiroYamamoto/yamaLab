@@ -76,14 +76,6 @@ public class MainActivity extends Activity {
             }
         };
 
-        // listener登録
-        Button b = (Button)findViewById(R.id.start_recognize);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRecognizeSpeech();
-            }
-        });
         startRecognizeSpeech();
     }
     @Override
@@ -237,7 +229,6 @@ public class MainActivity extends Activity {
 
         ((TextView)findViewById(R.id.status)).setText("");
         ((TextView)findViewById(R.id.sub_status)).setText("");
-        findViewById(R.id.start_recognize).setEnabled(false);
     }
 
     private static class RecogListener implements RecognitionListener {
@@ -390,10 +381,9 @@ public class MainActivity extends Activity {
                 if (s.equals("キャンセル"))
                     end=true;
             }
-            if (end)
-                caller.findViewById(R.id.start_recognize).setEnabled(true);
-            else
+            if (!end) {
                 caller.startRecognizeSpeech();
+            }
         }
     }
 }
