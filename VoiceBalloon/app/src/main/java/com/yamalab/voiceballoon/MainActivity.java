@@ -9,6 +9,7 @@ import android.graphics.Paint.Style;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Face;
@@ -86,8 +87,7 @@ public class MainActivity extends Activity {
     }
 
     private class CameraListener implements
-            SurfaceHolder.Callback,
-            Camera.FaceDetectionListener
+            SurfaceHolder.Callback
     {
         private SurfaceView surfaceView;
         private SurfaceHolder surfaceHolder;
@@ -114,10 +114,6 @@ public class MainActivity extends Activity {
                 camera.setPreviewDisplay(holder);
                 camera.getParameters().setPreviewFpsRange(1, 20);
                 camera.setDisplayOrientation(90); // portrate 固定
-                // 顔認証機能サポートチェック。
-                if (camera.getParameters().getMaxNumDetectedFaces() == 0) {
-                    throw new Error("Not supported face detected.");
-                }
             } catch (Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
@@ -128,48 +124,13 @@ public class MainActivity extends Activity {
                                    int width, int height) {
             surfaceHolder = holder;
             camera.startPreview();
-            camera.setFaceDetectionListener(cameraListener);
-            camera.startFaceDetection();
         }
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-            camera.setFaceDetectionListener(null);
             camera.release();
             camera = null;
         }
-
-        @Override
-        public void onFaceDetection(Face[] faces, Camera camera) {
-            if (faces.length == 0) return;
-            Face face = faces[0];
-            if (face.score < 30) return;
-
-            overlayListener.drawFace(faceRect2PixelRect(face), Color.RED);
-        }
-
-        /**
-         * 顔認識範囲を描画用に座標変換する。
-         * - Face.rect の座標系はプレビュー画像に対し -1000～1000 の相対座標。
-         * - 座標(-1000,-1000)が左上、座標(0,0) が画像中心となる。
-         * - 座標系のプレビュー画像はlandscapeとなる。portraitの場合が90度回転が必要。
-         * @param face 顔認識情報
-         * @return 描画用矩形範囲
-         */
-        private Rect faceRect2PixelRect(Face face) {
-            int w = surfaceView.getWidth();
-            int h = surfaceView.getHeight();
-            Rect rect = new Rect();
-
-            // フロントカメラなので左右反転、portraitなので座標軸反転
-            rect.left = w * (-face.rect.top + 1000) / 2000;
-            rect.right = w * (-face.rect.bottom + 1000) / 2000;
-            rect.top = h * (-face.rect.left + 1000) / 2000;
-            rect.bottom = h * (-face.rect.right + 1000) / 2000;
-            //Log.d(TAG, "rect=" + face.rect + "=>" + rect);
-            return rect;
-        }
-
     }
 
     private class OverlayListener implements SurfaceHolder.Callback
@@ -201,14 +162,14 @@ public class MainActivity extends Activity {
             // nop.
         }
 
-        public void drawFace(Rect rect1, int color) {
+        public void drawFace(RectF rect1, int color) {
             try {
                 Canvas canvas = surfaceHolder.lockCanvas();
                 if (canvas != null) {
                     try {
                         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                         paint.setColor(color);
-                        canvas.drawRect(rect1, paint);
+                        canvas.drawRoundRect(rect1, 5, 5, paint);
                     } finally {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                     }
@@ -231,7 +192,7 @@ public class MainActivity extends Activity {
         ((TextView)findViewById(R.id.sub_status)).setText("");
     }
 
-    private static class RecogListener implements RecognitionListener {
+    private class RecogListener implements RecognitionListener {
         private MainActivity caller;
         private TextView status;
         private TextView subStatus;
@@ -346,7 +307,7 @@ public class MainActivity extends Activity {
         @Override
         public void onResults(Bundle data) {
             status.setText("on results");
-            Log.v(TAG,"on results");
+            Log.v(TAG, "on results");
 
             ArrayList<String> results = data.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
@@ -366,20 +327,25 @@ public class MainActivity extends Activity {
             }
 
 
-            TextView t = (TextView)caller.findViewById(R.id.result);
+            TextView t = (TextView) caller.findViewById(R.id.result);
             t.setText("");
             for (String s : results) {
                 t.append(s + "\n");
             }
 
-            boolean end=false;
+            //　文字列の先頭（確度が高いやつ）を抜き出しで表示
+            String ballonText = results.get(0);
+            Log.v(TAG, "先頭文字列：" + ballonText);
+            overlayListener.drawFace(new RectF(0,0,100,100), Color.RED);
+
+            boolean end = false;
             for (String s : results) {
                 if (s.equals("終わり"))
-                    end=true;
+                    end = true;
                 if (s.equals("おわり"))
-                    end=true;
+                    end = true;
                 if (s.equals("キャンセル"))
-                    end=true;
+                    end = true;
             }
             if (!end) {
                 caller.startRecognizeSpeech();
@@ -387,6 +353,7 @@ public class MainActivity extends Activity {
         }
     }
 }
+
 
 // http://www.programing-style.com/android/android-api/android-httpurlconnection-post/
 class HttpPostTask extends AsyncTask<URL, Void, Void> {
