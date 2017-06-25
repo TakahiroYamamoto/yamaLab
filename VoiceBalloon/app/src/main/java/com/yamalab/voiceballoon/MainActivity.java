@@ -162,14 +162,20 @@ public class MainActivity extends Activity {
             // nop.
         }
 
-        public void drawFace(RectF rect1, int color) {
+        public void drawFace(float left, float top, int color, String text) {
             try {
                 Canvas canvas = surfaceHolder.lockCanvas();
                 if (canvas != null) {
                     try {
+                        int texth = 80;
+                        int textw = 80*text.length();
                         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                         paint.setColor(color);
-                        canvas.drawRoundRect(rect1, 5, 5, paint);
+                        paint.setStyle(Paint.Style.FILL);
+                        canvas.drawRoundRect(new RectF(left, top, left+textw, top+texth), 5, 5, paint);
+                        paint.setColor(Color.BLACK);
+                        paint.setTextSize(texth);
+                        canvas.drawText(text, left, top+texth-5, paint);
                     } finally {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                     }
@@ -336,7 +342,8 @@ public class MainActivity extends Activity {
             //　文字列の先頭（確度が高いやつ）を抜き出しで表示
             String ballonText = results.get(0);
             Log.v(TAG, "先頭文字列：" + ballonText);
-            overlayListener.drawFace(new RectF(0,0,100,100), Color.RED);
+            // TODO とりあえず固定で出してる
+            overlayListener.drawFace(330, 330, Color.GREEN, ballonText);
 
             boolean end = false;
             for (String s : results) {
