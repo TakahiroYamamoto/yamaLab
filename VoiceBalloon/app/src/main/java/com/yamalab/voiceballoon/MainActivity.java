@@ -78,14 +78,6 @@ public class MainActivity extends Activity {
             }
         };
 
-        // listener登録
-        Button b = (Button)findViewById(R.id.start_recognize);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRecognizeSpeech();
-            }
-        });
         startRecognizeSpeech();
     }
     @Override
@@ -236,10 +228,6 @@ public class MainActivity extends Activity {
 
         Intent intent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
         recog.startListening(intent);
-
-        ((TextView)findViewById(R.id.status)).setText("");
-        ((TextView)findViewById(R.id.sub_status)).setText("");
-        findViewById(R.id.start_recognize).setEnabled(false);
     }
 
     private static class RecogListener implements RecognitionListener {
@@ -249,21 +237,17 @@ public class MainActivity extends Activity {
 
         RecogListener(MainActivity a) {
             caller = a;
-            status = (TextView)a.findViewById(R.id.status);
-            subStatus = (TextView)a.findViewById(R.id.sub_status);
         }
 
         // 音声認識準備完了
         @Override
         public void onReadyForSpeech(Bundle params) {
-            status.setText("ready for speech");
             Log.v(TAG,"ready for speech");
         }
 
         // 音声入力開始
         @Override
         public void onBeginningOfSpeech() {
-            status.setText("beginning of speech");
             Log.v(TAG,"beginning of speech");
         }
 
@@ -278,14 +262,12 @@ public class MainActivity extends Activity {
         @Override
         public void onRmsChanged(float rmsdB) {
             String s = String.format("recieve : % 2.2f[dB]", rmsdB);
-            subStatus.setText(s);
             //Log.v(TAG,"recieve : " + rmsdB + "dB");
         }
 
         // 音声入力終了
         @Override
         public void onEndOfSpeech() {
-            status.setText("end of speech");
             Log.v(TAG,"end of speech");
             caller.handler.postDelayed(caller.readyRecognizeSpeech, 500);
         }
@@ -293,46 +275,36 @@ public class MainActivity extends Activity {
         // ネットワークエラー又は、音声認識エラー
         @Override
         public void onError(int error) {
-            status.setText("on error");
             Log.v(TAG,"on error");
             switch (error) {
                 case SpeechRecognizer.ERROR_AUDIO:
                     // 音声データ保存失敗
-                    subStatus.setText("ERROR_AUDIO");
                     break;
                 case SpeechRecognizer.ERROR_CLIENT:
                     // Android端末内のエラー(その他)
-                    subStatus.setText("ERROR_CLIENT");
                     break;
                 case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                     // 権限無し
-                    subStatus.setText("ERROR_INSUFFICIENT_PERMISSIONS");
                     break;
                 case SpeechRecognizer.ERROR_NETWORK:
                     // ネットワークエラー(その他)
-                    subStatus.setText("ERROR_NETWORK");
                     break;
                 case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
                     // ネットワークタイムアウトエラー
-                    subStatus.setText("ERROR_NETWORK_TIMEOUT");
                     break;
                 case SpeechRecognizer.ERROR_NO_MATCH:
                     // 音声認識結果無し
-                    subStatus.setText("ERROR_NO_MATCH");
                     caller.handler.postDelayed(caller.readyRecognizeSpeech,1000);
                     break;
                 case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
                     // RecognitionServiceへ要求出せず
-                    subStatus.setText("ERROR_RECOGNIZER_BUSY");
                     caller.handler.postDelayed(caller.readyRecognizeSpeech,1000);
                     break;
                 case SpeechRecognizer.ERROR_SERVER:
                     // Server側からエラー通知
-                    subStatus.setText("ERROR_SERVER");
                     break;
                 case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                     // 音声入力無し
-                    subStatus.setText("ERROR_SPEECH_TIMEOUT");
                     caller.handler.postDelayed(caller.readyRecognizeSpeech,1000);
                     break;
                 default:
@@ -342,21 +314,18 @@ public class MainActivity extends Activity {
         // イベント発生時に呼び出される
         @Override
         public void onEvent(int eventType, Bundle params) {
-            status.setText("on event");
             Log.v(TAG,"on event");
         }
 
         // 部分的な認識結果が得られる場合に呼び出される
         @Override
         public void onPartialResults(Bundle partialResults) {
-            status.setText("on partial results");
             Log.v(TAG,"on results");
         }
 
         // 認識結果
         @Override
         public void onResults(Bundle data) {
-            status.setText("on results");
             Log.v(TAG,"on results");
 
             ArrayList<String> results = data.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -389,8 +358,6 @@ public class MainActivity extends Activity {
                     end=true;
             }
             if (end)
-                caller.findViewById(R.id.start_recognize).setEnabled(true);
-            else
                 caller.startRecognizeSpeech();
         }
     }
