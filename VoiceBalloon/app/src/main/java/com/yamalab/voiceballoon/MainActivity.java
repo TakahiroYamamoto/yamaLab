@@ -42,6 +42,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import android.os.AsyncTask;
+import java.io.IOException;
+
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
@@ -367,19 +369,15 @@ public class MainActivity extends Activity {
 
             String postStr = baseUrl + srcLang + targetLang + transChar;
 
+            TextView t = (TextView)caller.findViewById(R.id.result);
 
             try {
-                new HttpPostTask().execute(new URL(postStr));
+                new HttpPostTask(t).execute(new URL(postStr));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
 
 
-            TextView t = (TextView)caller.findViewById(R.id.result);
-            t.setText("");
-            for (String s : results) {
-                t.append(s + "\n");
-            }
 
             boolean end=false;
             for (String s : results) {
@@ -399,12 +397,19 @@ public class MainActivity extends Activity {
 }
 
 // http://www.programing-style.com/android/android-api/android-httpurlconnection-post/
-class HttpPostTask extends AsyncTask<URL, Void, Void> {
+class HttpPostTask extends AsyncTask<URL, Void, String> {
+    private TextView textView;
+
+    public HttpPostTask(TextView textView) {
+        super();
+        this.textView = textView;
+    }
     @Override
-    protected Void doInBackground(URL... urls) {
+    protected String doInBackground(URL... urls) {
 
         final URL url = urls[0];
         HttpURLConnection con = null;
+        String translatedText = "";
         try {
             con = (HttpURLConnection) url.openConnection();
             con.setDoOutput(true);
@@ -434,6 +439,10 @@ class HttpPostTask extends AsyncTask<URL, Void, Void> {
                 while ((inputLine = reader.readLine()) != null) {
                     responseJSON.append(inputLine);
                 }
+                int headOfTranstaredText = responseJSON.lastIndexOf("translatedText");
+                String seekHeadString = responseJSON.substring(headOfTranstaredText+18);
+                int endOfTranstaredText = seekHeadString.indexOf("\"");
+                translatedText = seekHeadString.substring(0, endOfTranstaredText);
 
                 // この時点で、翻訳済みのJSONデータを取得済み!
             }
@@ -445,7 +454,13 @@ class HttpPostTask extends AsyncTask<URL, Void, Void> {
                 con.disconnect();
             }
         }
-        return null;
+        return translatedText;
+    }
+    @Override
+    protected void onPostExecute(String result)
+    {
+        textView.setText(result);
+
     }
 
 }
