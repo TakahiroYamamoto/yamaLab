@@ -172,13 +172,17 @@ public class MainActivity extends Activity {
                 if (canvas != null) {
                     try {
                         int texth = 80;
-                        int textw = 80*text.length();
+                        int textw = 44*text.length();
                         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                        paint.setColor(color);
+                        paint.setColor(Color.argb(125, 255, 64, 255));
                         paint.setStyle(Paint.Style.FILL);
+                        canvas.drawRoundRect(new RectF(left, top, left+textw, top+texth), 30, 30, paint);
+                        paint.setColor(Color.argb(255, 255, 64, 255));
+                        paint.setStyle(Paint.Style.STROKE);
                         canvas.drawRoundRect(new RectF(left, top, left+textw, top+texth), 30, 30, paint);
                         paint.setColor(Color.BLACK);
                         paint.setTextSize(texth);
+                        paint.setStyle(Paint.Style.FILL);
                         canvas.drawText(text, left, top+texth-5, paint);
                     } finally {
                         surfaceHolder.unlockCanvasAndPost(canvas);
@@ -414,7 +418,7 @@ class HttpPostTask extends AsyncTask<URL, Void, String> {
         int top = r.nextInt(500) + 700;
         int left = r.nextInt(500) + 100;
 
-        textView.drawFace(left, top, Color.GREEN, result);
+        textView.drawFace(left, top, Color.argb(125, 0, 0, 255), result);
 //        textView.drawFace(result);
 
     }
